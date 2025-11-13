@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --btn-bg: #3B82F6;
+  --btn-fg: #FFFFFF;
+  --btn-hover-bg: #2563EB;
+  --btn-disabled-bg: #D1D5DB;
+  --btn-disabled-fg: #6B7280;
+  --panel-bg: #F9FAFB;
+  --panel-border: #E5E7EB;
+  --success-bg: #ECFDF5;
+  --success-fg: #047857;
+  --error-bg: #FEF2F2;
+  --error-fg: #B91C1C;
+  --warning-bg: #FFFBEB;
+  --warning-fg: #92400E;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --btn-bg: #2563EB;
+    --btn-fg: #F9FAFB;
+    --btn-hover-bg: #1D4ED8;
+    --btn-disabled-bg: #374151;
+    --btn-disabled-fg: #6B7280;
+    --panel-bg: #1F2937;
+    --panel-border: #374151;
+    --success-bg: #064E3B;
+    --success-fg: #34D399;
+    --error-bg: #7F1D1D;
+    --error-fg: #FCA5A5;
+    --warning-bg: #78350F;
+    --warning-fg: #FCD34D;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Add transition for all elements to get smooth theme changes */
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease, 
+              box-shadow 0.3s ease;
+}
+
+/* But disable transitions for elements where it would be distracting */
+.animate-spin, 
+.animate-pulse,
+.animate-bounce {
+  transition: none;
+}
+
+button {
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--btn-hover-bg);
+}
+
+button:disabled {
+  background-color: var(--btn-disabled-bg);
+  color: var(--btn-disabled-fg);
+  cursor: not-allowed;
+}

@@ -85,8 +85,8 @@ vercel
 
 ### Important Notes for Production
 
-- **Socket.IO Configuration**: The app is configured to work with Vercel's serverless functions. The `vercel.json` file includes the necessary configuration.
-- **WebSocket Support**: Vercel supports WebSockets for real-time multiplayer functionality.
+- **Polling-Based Multiplayer**: The app uses HTTP polling instead of WebSockets, making it fully compatible with Vercel's free serverless functions.
+- **No Database Required**: Game state is stored in-memory (resets on cold starts).
 - **Environment Variables**: No environment variables are required for basic deployment.
 
 ### Alternative Deployment Options

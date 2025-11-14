@@ -286,7 +286,7 @@ function PrisonersDilemmaGame() {
       
       return () => clearTimeout(timer);
     }
-  }, [gameState, currentRound, isBotMode]);
+  }, [gameState, currentRound, isBotMode, myChoice]);
   
   const handlePlayAgain = () => {
     setGameState('menu');

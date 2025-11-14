@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
+  const version = "0.3.1";
   const router = useRouter();
   const [mode, setMode] = useState('multiplayer'); // 'multiplayer' or 'bot'
   const [bot, setBot] = useState('tit-for-tat');     // Updated to match backend naming
@@ -179,7 +180,7 @@ export default function Home() {
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Built with Next.js
+          Built with Next.js • v{version}
         </p>
       </footer>
     </div>

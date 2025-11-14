@@ -39,16 +39,16 @@ const calculateEnhancedPayoffs = (p1Choice: string, p2Choice: string, _gameHisto
 
 // Bot strategies
 const botStrategies = {
-  alwaysCooperate: () => 'cooperate',
-  alwaysDefect: () => 'defect',
-  random: () => Math.random() < 0.5 ? 'cooperate' : 'defect',
-  titForTat: (history: GameRound[], playerNum: number) => {
+  'always-cooperate': () => 'cooperate',
+  'always-defect': () => 'defect',
+  'random': () => Math.random() < 0.5 ? 'cooperate' : 'defect',
+  'tit-for-tat': (history: GameRound[], playerNum: number) => {
     if (history.length === 0) return 'cooperate';
     const lastRound = history[history.length - 1];
     return playerNum === 1 ? lastRound.player2 : lastRound.player1;
   },
-  grudger: (history: GameRound[], playerNum: number) => {
-    const opponentDefected = history.some(round => 
+  'grudger': (history: GameRound[], playerNum: number) => {
+    const opponentDefected = history.some(round =>
       (playerNum === 1 ? round.player2 : round.player1) === 'defect'
     );
     return opponentDefected ? 'defect' : 'cooperate';
@@ -58,7 +58,7 @@ const botStrategies = {
 function PrisonersDilemmaGame() {
   const searchParams = useSearchParams();
   const mode = searchParams?.get("mode");
-  const botType = searchParams?.get("bot") as keyof typeof botStrategies;
+  const botType = searchParams?.get("bot");
   
   // Game state
   const [gameState, setGameState] = useState<'menu' | 'waiting' | 'playing' | 'choosing' | 'roundResult' | 'gameOver'>('menu');
@@ -195,7 +195,7 @@ function PrisonersDilemmaGame() {
   const handleChoice = async (choice: 'cooperate' | 'defect') => {
     if (isBotMode) {
       // Bot mode - immediate response
-      const botChoice = botStrategies[botType](gameHistory, 2);
+      const botChoice = botStrategies[botType as keyof typeof botStrategies](gameHistory, 2);
       const result = calculateEnhancedPayoffs(choice, botChoice as string, gameHistory);
       
       setScores({

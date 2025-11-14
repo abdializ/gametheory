@@ -15,13 +15,6 @@
       "static/css/fc4cc7e0a911de70.css",
       "static/chunks/app/layout-7b058a681707e915.js"
     ],
-    "/page": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-7744381394d71950.js",
-      "static/chunks/517-023f0b3dee9046a4.js",
-      "static/chunks/main-app-45e0e9007a24a6de.js",
-      "static/chunks/app/page-427cc8e94fb18495.js"
-    ],
     "/prisoners-dilemma/page": [
       "static/chunks/webpack-68f22649503f8e75.js",
       "static/chunks/4bd1b696-7744381394d71950.js",
@@ -29,6 +22,13 @@
       "static/chunks/main-app-45e0e9007a24a6de.js",
       "static/chunks/463-611f61ccd4c6b7f0.js",
       "static/chunks/app/prisoners-dilemma/page-91d1a69f1b651581.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-68f22649503f8e75.js",
+      "static/chunks/4bd1b696-7744381394d71950.js",
+      "static/chunks/517-023f0b3dee9046a4.js",
+      "static/chunks/main-app-45e0e9007a24a6de.js",
+      "static/chunks/app/page-427cc8e94fb18495.js"
     ]
   }
 }

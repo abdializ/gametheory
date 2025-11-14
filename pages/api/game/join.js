@@ -5,20 +5,27 @@ export default function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     
-    const { roomCode, playerId } = req.body;
+    const { roomCode, playerId, playerName = 'Player' } = req.body;
     
     if (!roomCode || !playerId) {
         return res.status(400).json({ error: 'Missing roomCode or playerId' });
     }
     
     try {
-        const room = joinRoom(roomCode, playerId);
+        const room = joinRoom(roomCode, playerId, playerName);
         
         if (!room) {
             return res.status(404).json({ error: 'Room not found or full' });
         }
+
+        // Build players array with names
+        const playersWithNames = room.players.map(pid => ({
+            id: pid,
+            name: room.playerNames[pid] || 'Player'
+        }));
         
         return res.status(200).json({ 
+            playerName: room.playerNames[playerId],
             room: {
                 code: room.code,
                 playerNumber: room.players.indexOf(playerId) + 1,
@@ -26,7 +33,8 @@ export default function handler(req, res) {
                 currentRound: room.currentRound,
                 totalRounds: room.totalRounds,
                 scores: room.scores,
-                playerCount: room.players.length
+                playerCount: room.players.length,
+                players: playersWithNames
             }
         });
     } catch (error) {

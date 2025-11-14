@@ -6,8 +6,12 @@ export default function handler(req, res) {
     }
     
     try {
+        const { playerName = 'Player' } = req.body || {};
         const room = createRoom();
-        return res.status(200).json({ roomCode: room.code });
+        return res.status(200).json({ 
+            roomCode: room.code,
+            playerName
+        });
     } catch (error) {
         console.error('Error creating room:', error);
         return res.status(500).json({ error: 'Failed to create room' });

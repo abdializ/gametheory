@@ -28,6 +28,12 @@ export default function handler(req, res) {
         const playerMadeChoice = !!room.choices[`player${playerNumber}`];
         const opponentMadeChoice = !!room.choices[`player${opponentNumber}`];
         
+        // Build players array with names
+        const playersWithNames = room.players.map(pid => ({
+            id: pid,
+            name: room.playerNames[pid] || 'Player'
+        }));
+
         return res.status(200).json({
             gameState: room.gameState,
             currentRound: room.currentRound,
@@ -40,7 +46,8 @@ export default function handler(req, res) {
             myChoice: playerMadeChoice ? room.choices[`player${playerNumber}`] : null,
             bothPlayersReady: room.players.length === 2,
             gameHistory: room.gameHistory,
-            lastRound: room.gameHistory[room.gameHistory.length - 1] || null
+            lastRound: room.gameHistory[room.gameHistory.length - 1] || null,
+            players: playersWithNames
         });
     } catch (error) {
         console.error('Error getting game state:', error);

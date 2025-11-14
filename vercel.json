@@ -1,9 +1,9 @@
 {
-  "buildCommand": "cd prisoners-dilemma && npm run build",
-  "installCommand": "cd prisoners-dilemma && npm install",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "functions": {
-    "prisoners-dilemma/pages/api/game/*.js": {
+    "pages/api/game/*.js": {
       "maxDuration": 10
     }
   },
@@ -19,3 +19,4 @@
     }
   ]
 }
+

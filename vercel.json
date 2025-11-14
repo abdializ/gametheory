@@ -1,0 +1,21 @@
+{
+  "buildCommand": "cd prisoners-dilemma && npm run build",
+  "installCommand": "cd prisoners-dilemma && npm install",
+  "framework": "nextjs",
+  "functions": {
+    "prisoners-dilemma/pages/api/game/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

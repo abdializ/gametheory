@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useContext, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SocketContext } from "../../pages/_app";
@@ -683,7 +683,7 @@ type GameReadyEvent = { ready: boolean; };
 type ErrorEvent = { message: string; };
 
 // Main PrisonersDilemma component
-export default function PrisonersDilemmaGame() {
+function PrisonersDilemmaGame() {
   // Get the socket from context
   const socket = useContext(SocketContext);
   const [isConnected, setIsConnected] = useState(false);
@@ -1365,5 +1365,20 @@ export default function PrisonersDilemmaGame() {
         </>
       )}
     </div>
+  );
+}
+
+// Export with Suspense boundary for useSearchParams
+export default function PrisonersDilemmaGameWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-4xl mx-auto py-8 px-4 dark:bg-gray-900 dark:text-white text-center">
+        <h1 className="text-3xl font-bold mb-6">Prisoner&apos;s Dilemma</h1>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
+        <p className="mt-4">Loading game...</p>
+      </div>
+    }>
+      <PrisonersDilemmaGame />
+    </Suspense>
   );
 } 

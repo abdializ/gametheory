@@ -10,10 +10,13 @@ export default function Home() {
   const [bot, setBot] = useState('tit-for-tat');     // Updated to match backend naming
   
   const handlePlayClick = () => {
+    const timestamp = Date.now();
     if (mode === 'multiplayer') {
-      router.push('/prisoners-dilemma?mode=multiplayer');
+      console.log('Navigating to multiplayer with mode parameter');
+      window.location.href = `/prisoners-dilemma?mode=multiplayer&t=${timestamp}`;
     } else {
-      router.push(`/prisoners-dilemma?mode=bot&bot=${bot}`);
+      console.log('Navigating to bot mode');
+      window.location.href = `/prisoners-dilemma?mode=bot&bot=${bot}&t=${timestamp}`;
     }
   };
 

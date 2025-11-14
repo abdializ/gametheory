@@ -275,11 +275,13 @@ function PrisonersDilemmaGame() {
   
   // Auto-advance from round result to next round after 3 seconds
   useEffect(() => {
-    if (gameState === 'roundResult' && !isBotMode) {
+    if (gameState === 'roundResult' && !isBotMode && currentRound < MAX_ROUNDS) {
       const timer = setTimeout(() => {
-        if (currentRound < MAX_ROUNDS) {
-          handleNextRound();
-        }
+        setGameState('choosing');
+        setLastRoundResult(null);
+        setWaitingForOpponent(false);
+        setOpponentHasChosen(false);
+        setMyChoice(null);
       }, 3000); // 3 seconds
       
       return () => clearTimeout(timer);

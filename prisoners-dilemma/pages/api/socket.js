@@ -762,12 +762,18 @@ const registerSocketHandlers = (socketIo) => {
 
 // Entry point for API route
 export default function SocketHandler(req, res) {
-    console.log('Socket.IO API route hit');
+    console.log('Socket.IO API route hit', req.method, req.url);
 
+    // Check if server already has Socket.IO instance
     if (res.socket.server.io) {
         console.log('Socket.IO is already running');
-        res.end();
-        return;
+        // Still need to handle the request
+        if (!res.socket.server.io.engine) {
+            console.log('Socket.IO engine not ready, reinitializing...');
+        } else {
+            res.end();
+            return;
+        }
     }
 
     try {
@@ -783,14 +789,15 @@ export default function SocketHandler(req, res) {
             },
             transports: ["polling", "websocket"],
             pingInterval: 10000,
-            pingTimeout: 20000
+            pingTimeout: 20000,
+            allowEIO3: true // Allow Engine.IO v3 clients
         });
 
         // Store Socket.IO instance on response object
         res.socket.server.io = io;
 
         // Log socket.io path for debugging
-        console.log(`Socket.IO server initialized with default path: ${io.path()}`);
+        console.log(`Socket.IO server initialized with path: ${io.path()}`);
 
         // Register socket event handlers
         registerSocketHandlers(io);
@@ -798,6 +805,10 @@ export default function SocketHandler(req, res) {
         // Handle common errors
         io.engine.on("connection_error", (err) => {
             console.error('Socket.IO connection error:', err);
+        });
+
+        io.engine.on("upgrade_error", (err) => {
+            console.error('Socket.IO upgrade error:', err);
         });
 
         console.log('Socket.IO initialization successful');

@@ -7,7 +7,7 @@ import Link from "next/link";
 // Maximum number of rounds in a game
 const MAX_ROUNDS = 15;
 
-// Define types
+// Game Round Interface
 interface GameRound {
   round: number;
   player1: string;
@@ -19,9 +19,7 @@ interface GameRound {
   };
 }
 
-//notes
-
-// Helper function to calculate enhanced payoffs (client-side for bot mode)
+// Calculate enhanced payoffs for bot mode (no Socket.IO)
 const calculateEnhancedPayoffs = (p1Choice: string, p2Choice: string, _gameHistory: GameRound[] = []) => {
   let p1Score = 0, p2Score = 0;
   

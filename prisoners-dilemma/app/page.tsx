@@ -1,11 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
+  const router = useRouter();
   const [mode, setMode] = useState('multiplayer'); // 'multiplayer' or 'bot'
   const [bot, setBot] = useState('tit-for-tat');     // Updated to match backend naming
+  
+  const handlePlayClick = () => {
+    if (mode === 'multiplayer') {
+      router.push('/prisoners-dilemma?mode=multiplayer');
+    } else {
+      router.push(`/prisoners-dilemma?mode=bot&bot=${bot}`);
+    }
+  };
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -140,12 +150,12 @@ export default function Home() {
               </div>
             )}
             
-            <a 
-              href={mode === 'multiplayer' ? "/prisoners-dilemma?mode=multiplayer" : `/prisoners-dilemma?mode=bot&bot=${bot}`}
+            <button
+              onClick={handlePlayClick}
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg inline-block transition-colors"
             >
               {mode === 'multiplayer' ? "Play Multiplayer" : "Play Against Bot"}
-            </a>
+            </button>
           </div>
         </div>
         

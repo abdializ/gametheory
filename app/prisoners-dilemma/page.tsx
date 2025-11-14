@@ -506,14 +506,19 @@ function PrisonersDilemmaGame() {
     </div>
   );
   
-  const ChoiceScreen = () => (
+  const ChoiceScreen = () => {
+    // Get correct scores based on player number
+    const myScore = isBotMode ? scores.player1 : (playerNumber === 1 ? scores.player1 : scores.player2);
+    const opponentScore = isBotMode ? scores.player2 : (playerNumber === 1 ? scores.player2 : scores.player1);
+
+    return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">Round {currentRound} / {MAX_ROUNDS}</h2>
         <div className="text-lg">
-          <span className="text-blue-400">{playerName}: {scores.player1}</span>
+          <span className="text-blue-400">{playerName}: {myScore}</span>
           <span className="mx-4">vs</span>
-          <span className="text-red-400">{opponentName}: {scores.player2}</span>
+          <span className="text-red-400">{opponentName}: {opponentScore}</span>
         </div>
       </div>
       
@@ -567,19 +572,24 @@ function PrisonersDilemmaGame() {
         </div>
       )}
     </div>
-  );
+    );
+  };
   
   const RoundResultScreen = () => {
     if (!lastRoundResult) return null;
     
+    // Get correct scores based on player number
+    const myScore = isBotMode ? scores.player1 : (playerNumber === 1 ? scores.player1 : scores.player2);
+    const opponentScore = isBotMode ? scores.player2 : (playerNumber === 1 ? scores.player2 : scores.player1);
+
     return (
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Round {lastRoundResult.round} Result</h2>
           <div className="text-lg">
-            <span className="text-blue-400">{playerName}: {scores.player1}</span>
+            <span className="text-blue-400">{playerName}: {myScore}</span>
             <span className="mx-4">vs</span>
-            <span className="text-red-400">{opponentName}: {scores.player2}</span>
+            <span className="text-red-400">{opponentName}: {opponentScore}</span>
           </div>
         </div>
         
@@ -631,8 +641,12 @@ function PrisonersDilemmaGame() {
   };
   
   const GameOverScreen = () => {
-    const winner = scores.player1 > scores.player2 ? 'You win!' : 
-                   scores.player1 < scores.player2 ? (isBotMode ? 'Bot wins!' : 'Opponent wins!') : 
+    // Get correct scores based on player number
+    const myScore = isBotMode ? scores.player1 : (playerNumber === 1 ? scores.player1 : scores.player2);
+    const opponentScore = isBotMode ? scores.player2 : (playerNumber === 1 ? scores.player2 : scores.player1);
+
+    const winner = myScore > opponentScore ? `${playerName} wins!` : 
+                   myScore < opponentScore ? `${opponentName} wins!` : 
                    "It's a tie!";
     
     return (
@@ -640,9 +654,9 @@ function PrisonersDilemmaGame() {
         <div className="text-center">
           <h2 className="text-4xl font-bold mb-4">{winner}</h2>
           <div className="text-2xl mb-6">
-            <span className="text-blue-400">{playerName}: {scores.player1}</span>
+            <span className="text-blue-400">{playerName}: {myScore}</span>
             <span className="mx-4">vs</span>
-            <span className="text-red-400">{opponentName}: {scores.player2}</span>
+            <span className="text-red-400">{opponentName}: {opponentScore}</span>
           </div>
         </div>
         

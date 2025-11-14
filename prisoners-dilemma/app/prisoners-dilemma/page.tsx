@@ -74,6 +74,8 @@ function PrisonersDilemmaGame() {
   const [playerNumber, setPlayerNumber] = useState<number>(0);
   const [playerCount, setPlayerCount] = useState(0);
   const [waitingForOpponent, setWaitingForOpponent] = useState(false);
+  const [opponentHasChosen, setOpponentHasChosen] = useState(false);
+  const [myChoice, setMyChoice] = useState<string | null>(null);
   const [error, setError] = useState('');
   
   const isBotMode = mode === 'bot';
@@ -104,22 +106,28 @@ function PrisonersDilemmaGame() {
             
             setCurrentRound(data.currentRound);
             
-            // Check if round just completed
-            if (data.lastRound && data.lastRound.round === currentRound && !waitingForOpponent) {
-              setLastRoundResult(data.lastRound);
-              setGameState('roundResult');
+            // Update opponent choice status
+            if (data.opponentHasChosen !== undefined) {
+              setOpponentHasChosen(data.opponentHasChosen);
             }
             
-            // Update waiting status
-            if (data.waitingForOpponent && !waitingForOpponent) {
-              setWaitingForOpponent(true);
-            } else if (!data.waitingForOpponent && waitingForOpponent && gameState !== 'roundResult') {
+            // Update my choice if available
+            if (data.myChoice && !myChoice) {
+              setMyChoice(data.myChoice);
+            }
+            
+            // Check if round just completed - both players have chosen
+            if (data.lastRound && data.lastRound.round === currentRound) {
+              // Both players have chosen, show result
+              setLastRoundResult(data.lastRound);
+              setScores(data.scores);
+              setGameHistory(data.gameHistory || []);
               setWaitingForOpponent(false);
-              // Both players ready, show result
-              if (data.lastRound) {
-                setLastRoundResult(data.lastRound);
-                setGameState('roundResult');
-              }
+              setOpponentHasChosen(false);
+              setMyChoice(null);
+              setGameState('roundResult');
+            } else if (data.waitingForOpponent !== undefined) {
+              setWaitingForOpponent(data.waitingForOpponent);
             }
           }
         }
@@ -213,7 +221,9 @@ function PrisonersDilemmaGame() {
       }
     } else {
       // Multiplayer mode - submit choice and wait
+      setMyChoice(choice);
       setWaitingForOpponent(true);
+      setOpponentHasChosen(false);
       
       try {
         const response = await fetch('/api/game/choice', {
@@ -226,12 +236,14 @@ function PrisonersDilemmaGame() {
           const data = await response.json();
           
           if (!data.waitingForOpponent && data.lastRound) {
-            // Both players chose, show result immediately
+            // Both players chose immediately, show result
             setLastRoundResult(data.lastRound);
             setScores(data.scores);
             setCurrentRound(data.currentRound);
             setGameHistory(data.gameHistory);
             setWaitingForOpponent(false);
+            setOpponentHasChosen(false);
+            setMyChoice(null);
             
             if (data.gameState === 'finished') {
               setGameState('gameOver');
@@ -239,13 +251,16 @@ function PrisonersDilemmaGame() {
               setGameState('roundResult');
             }
           }
+          // If still waiting, polling will handle the update
         } else {
           setError('Failed to submit choice');
           setWaitingForOpponent(false);
+          setMyChoice(null);
         }
       } catch {
         setError('Failed to submit choice');
         setWaitingForOpponent(false);
+        setMyChoice(null);
       }
     }
   };
@@ -254,7 +269,22 @@ function PrisonersDilemmaGame() {
     setGameState('choosing');
     setLastRoundResult(null);
     setWaitingForOpponent(false);
+    setOpponentHasChosen(false);
+    setMyChoice(null);
   };
+  
+  // Auto-advance from round result to next round after 3 seconds
+  useEffect(() => {
+    if (gameState === 'roundResult' && !isBotMode) {
+      const timer = setTimeout(() => {
+        if (currentRound < MAX_ROUNDS) {
+          handleNextRound();
+        }
+      }, 3000); // 3 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, currentRound, isBotMode]);
   
   const handlePlayAgain = () => {
     setGameState('menu');
@@ -266,6 +296,8 @@ function PrisonersDilemmaGame() {
     setPlayerNumber(0);
     setPlayerCount(0);
     setWaitingForOpponent(false);
+    setOpponentHasChosen(false);
+    setMyChoice(null);
     setError('');
   };
   
@@ -391,8 +423,21 @@ function PrisonersDilemmaGame() {
       </div>
       
       {waitingForOpponent && (
-        <div className="text-center text-yellow-400 animate-pulse">
-          Waiting for opponent to choose...
+        <div className="space-y-2">
+          <div className="text-center text-yellow-400 animate-pulse">
+            {myChoice && (
+              <div className="mb-2">
+                You chose: <span className="font-bold">{myChoice === 'cooperate' ? '🤝 Cooperate' : '⚔️ Defect'}</span>
+              </div>
+            )}
+            {opponentHasChosen ? (
+              <div className="text-green-400">
+                ✓ Opponent has chosen! Processing...
+              </div>
+            ) : (
+              <div>Waiting for opponent to choose...</div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -441,12 +486,20 @@ function PrisonersDilemmaGame() {
           )}
         </div>
         
-        <button
-          onClick={handleNextRound}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-        >
-          Next Round
-        </button>
+        {isBotMode && currentRound < MAX_ROUNDS && (
+          <button
+            onClick={handleNextRound}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            Next Round
+          </button>
+        )}
+        
+        {!isBotMode && currentRound < MAX_ROUNDS && (
+          <div className="text-center text-gray-400">
+            Next round starting automatically...
+          </div>
+        )}
       </div>
     );
   };

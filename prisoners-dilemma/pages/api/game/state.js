@@ -25,6 +25,7 @@ export default function handler(req, res) {
         
         const playerNumber = playerIndex + 1;
         const opponentNumber = playerNumber === 1 ? 2 : 1;
+        const playerMadeChoice = !!room.choices[`player${playerNumber}`];
         const opponentMadeChoice = !!room.choices[`player${opponentNumber}`];
         
         return res.status(200).json({
@@ -34,7 +35,9 @@ export default function handler(req, res) {
             scores: room.scores,
             playerCount: room.players.length,
             playerNumber,
-            waitingForOpponent: room.choices[`player${playerNumber}`] && !opponentMadeChoice,
+            waitingForOpponent: playerMadeChoice && !opponentMadeChoice,
+            opponentHasChosen: opponentMadeChoice,
+            myChoice: playerMadeChoice ? room.choices[`player${playerNumber}`] : null,
             bothPlayersReady: room.players.length === 2,
             gameHistory: room.gameHistory,
             lastRound: room.gameHistory[room.gameHistory.length - 1] || null

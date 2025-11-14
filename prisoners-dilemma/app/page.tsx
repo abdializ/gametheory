@@ -140,12 +140,12 @@ export default function Home() {
               </div>
             )}
             
-            <Link 
+            <a 
               href={mode === 'multiplayer' ? "/prisoners-dilemma?mode=multiplayer" : `/prisoners-dilemma?mode=bot&bot=${bot}`}
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg inline-block transition-colors"
             >
               {mode === 'multiplayer' ? "Play Multiplayer" : "Play Against Bot"}
-            </Link>
+            </a>
           </div>
         </div>
         

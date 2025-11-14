@@ -126,23 +126,22 @@ export default function Home() {
             
             {mode === 'multiplayer' && (
               <div className="network-instructions mb-6 text-blue-700 dark:text-blue-300">
-                <h3 className="font-semibold mb-2">Play Over Local Network:</h3>
+                <h3 className="font-semibold mb-2">How to Play:</h3>
                 <ol className="list-decimal list-inside">
-                  <li className="mb-1">On your PC, run: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">HOST=0.0.0.0 npm run dev</code></li>
-                  <li className="mb-1">Find your PC&apos;s IP address</li>
-                  <li className="mb-1">On your phone or other device, navigate to: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">http://&lt;YOUR-PC-IP&gt;:3000</code></li>
-                  <li className="mb-1">On the first device, click &quot;Create New Room&quot; and you&apos;ll receive a room code</li>
-                  <li className="mb-1">On the second device, click &quot;Join Room&quot; and enter the room code</li>
-                  <li>Both devices must be on the same network for the connection to work properly</li>
+                  <li className="mb-1">Click &quot;Play Multiplayer&quot; to start</li>
+                  <li className="mb-1">One player clicks &quot;Create Room&quot; and gets a 6-digit room code</li>
+                  <li className="mb-1">Share the room code with your friend</li>
+                  <li className="mb-1">Your friend enters the code and clicks &quot;Join&quot;</li>
+                  <li>Once both players join, the game begins!</li>
                 </ol>
                 <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-                  The game uses Socket.IO for real-time communication between players.
+                  Play with friends over the internet using room codes.
                 </p>
               </div>
             )}
             
             <Link 
-              href={mode === 'multiplayer' ? "/prisoners-dilemma" : `/prisoners-dilemma?mode=bot&strategy=${bot}`}
+              href={mode === 'multiplayer' ? "/prisoners-dilemma?mode=multiplayer" : `/prisoners-dilemma?mode=bot&bot=${bot}`}
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg inline-block transition-colors"
             >
               {mode === 'multiplayer' ? "Play Multiplayer" : "Play Against Bot"}
@@ -167,7 +166,7 @@ export default function Home() {
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Built with Next.js and Socket.IO
+          Built with Next.js
         </p>
       </footer>
     </div>

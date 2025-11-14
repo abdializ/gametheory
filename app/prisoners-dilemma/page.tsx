@@ -335,12 +335,19 @@ function PrisonersDilemmaGame() {
             
             <div className="flex gap-2">
               <input
+                key="room-code-input"
                 type="text"
                 value={inputRoomCode}
-                onChange={(e) => setInputRoomCode(e.target.value)}
+                onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleJoinRoom();
+                  }
+                }}
                 placeholder="Enter room code"
-                className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white"
+                className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400"
                 maxLength={6}
+                autoFocus
               />
               <button
                 onClick={handleJoinRoom}

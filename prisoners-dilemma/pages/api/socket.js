@@ -762,35 +762,57 @@ const registerSocketHandlers = (socketIo) => {
 
 // Entry point for API route
 export default function SocketHandler(req, res) {
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        });
+        res.end();
+        return;
+    }
+
     console.log('Socket.IO API route hit', req.method, req.url);
+
+    // Ensure we have a server instance
+    if (!res.socket || !res.socket.server) {
+        console.error('No server instance available');
+        res.status(500).end('Server not available');
+        return;
+    }
 
     // Check if server already has Socket.IO instance
     if (res.socket.server.io) {
         console.log('Socket.IO is already running');
-        // Still need to handle the request
-        if (!res.socket.server.io.engine) {
-            console.log('Socket.IO engine not ready, reinitializing...');
-        } else {
-            res.end();
-            return;
+        // Make sure handlers are registered
+        if (!res.socket.server.io._handlersRegistered) {
+            registerSocketHandlers(res.socket.server.io);
+            res.socket.server.io._handlersRegistered = true;
         }
+        res.end();
+        return;
     }
 
     try {
         console.log('Initializing Socket.IO server');
 
-        // Initialize Socket.IO server with minimal supported configuration
+        // Initialize Socket.IO server with configuration optimized for Vercel
         io = new Server(res.socket.server, {
             path: '/api/socket',
             cors: {
                 origin: "*",
-                methods: ["GET", "POST"],
+                methods: ["GET", "POST", "OPTIONS"],
                 credentials: true
             },
             transports: ["polling", "websocket"],
-            pingInterval: 10000,
-            pingTimeout: 20000,
-            allowEIO3: true // Allow Engine.IO v3 clients
+            pingInterval: 25000,
+            pingTimeout: 60000,
+            allowEIO3: true,
+            connectTimeout: 45000,
+            // Optimize for serverless
+            allowUpgrades: true,
+            upgradeTimeout: 10000
         });
 
         // Store Socket.IO instance on response object
@@ -801,6 +823,7 @@ export default function SocketHandler(req, res) {
 
         // Register socket event handlers
         registerSocketHandlers(io);
+        io._handlersRegistered = true;
 
         // Handle common errors
         io.engine.on("connection_error", (err) => {
@@ -811,10 +834,15 @@ export default function SocketHandler(req, res) {
             console.error('Socket.IO upgrade error:', err);
         });
 
+        io.engine.on("error", (err) => {
+            console.error('Socket.IO engine error:', err);
+        });
+
         console.log('Socket.IO initialization successful');
         res.end();
     } catch (error) {
         console.error('Socket.IO initialization error:', error);
-        res.status(500).end('Failed to initialize Socket.IO');
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to initialize Socket.IO', message: error.message });
     }
 }

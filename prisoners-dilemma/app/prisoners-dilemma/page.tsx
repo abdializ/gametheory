@@ -798,14 +798,30 @@ function PrisonersDilemmaGame() {
   useEffect(() => {
     if (isBotMode) return;
     
-    if (!socket) return;
+    if (!socket) {
+      console.error('Socket not available');
+      setError('Socket connection not available. Please refresh the page.');
+      return;
+    }
     
     console.log('Attempting socket.connect()...');
+    
+    // Set a timeout for connection
+    const connectionTimeout = setTimeout(() => {
+      if (!socket?.connected) {
+        console.error('Socket connection timeout');
+        setError('Connection timeout. Please check your internet connection and try again.');
+        setIsConnected(false);
+        setConnected(false);
+      }
+    }, 10000); // 10 second timeout
+    
     socket.connect();
     
     // Connection events
     const handleConnect = () => {
       console.log('Socket connected:', socket.id);
+      clearTimeout(connectionTimeout);
       setConnected(true);
       setIsConnected(true);
       setHasError(false);
@@ -815,6 +831,7 @@ function PrisonersDilemmaGame() {
     
     const handleDisconnect = (reason: string) => {
       console.log('Socket disconnected:', reason);
+      clearTimeout(connectionTimeout);
       setConnected(false);
       setIsConnected(false);
       setError(`Connection lost: ${reason}. The socket will try to reconnect automatically.`);
@@ -822,9 +839,11 @@ function PrisonersDilemmaGame() {
     
     const handleConnectError = (err: Error) => {
       console.error('Connection error:', err);
+      clearTimeout(connectionTimeout);
       setIsConnected(false);
       setHasError(true);
       setErrorMessage(err.message || "Unknown error");
+      setError(`Connection failed: ${err.message || "Unknown error"}. Please refresh the page.`);
     };
     
     // Game state events
@@ -986,6 +1005,11 @@ function PrisonersDilemmaGame() {
       socket.off('gameReady', handleGameReady);
       socket.off('error', handleError);
       socket.off('playerChosen', handlePlayerChosen);
+      
+      // Disconnect socket on cleanup
+      if (socket.connected) {
+        socket.disconnect();
+      }
     };
   }, [socket, isBotMode, playerId]);
 
@@ -1152,6 +1176,17 @@ function PrisonersDilemmaGame() {
         <h1 className="text-3xl font-bold mb-6">Prisoner&apos;s Dilemma</h1>
         <p className="mb-4">Initializing connection… please wait</p>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
+        {error && (
+          <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-lg">
+            <p className="text-red-700 dark:text-red-400">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Refresh Page
+            </button>
+          </div>
+        )}
       </div>
     );
   }

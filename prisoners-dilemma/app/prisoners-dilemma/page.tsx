@@ -19,6 +19,8 @@ interface GameRound {
   };
 }
 
+//notes
+
 // Helper function to calculate enhanced payoffs (client-side for bot mode)
 const calculateEnhancedPayoffs = (p1Choice: string, p2Choice: string, _gameHistory: GameRound[] = []) => {
   let p1Score = 0, p2Score = 0;

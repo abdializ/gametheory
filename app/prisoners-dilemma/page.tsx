@@ -61,12 +61,23 @@ function PrisonersDilemmaGame() {
   const botType = searchParams?.get("bot");
   
   // Game state
-  const [gameState, setGameState] = useState<'menu' | 'waiting' | 'playing' | 'choosing' | 'roundResult' | 'gameOver'>('menu');
+  const [gameState, setGameState] = useState<'menu' | 'nameInput' | 'waiting' | 'playing' | 'choosing' | 'roundResult' | 'gameOver'>('menu');
   const [currentRound, setCurrentRound] = useState(0);
   const [scores, setScores] = useState({ player1: 0, player2: 0 });
   const [gameHistory, setGameHistory] = useState<GameRound[]>([]);
   const [lastRoundResult, setLastRoundResult] = useState<GameRound | null>(null);
-  
+
+  // Player names
+  const [playerName, setPlayerName] = useState('');
+  const [opponentName, setOpponentName] = useState('');
+
+  // Generate random name
+  const generateRandomName = () => {
+    const adjectives = ['Swift', 'Bold', 'Wise', 'Quick', 'Smart', 'Clever', 'Brave', 'Calm', 'Cool', 'Epic'];
+    const nouns = ['Eagle', 'Tiger', 'Wolf', 'Bear', 'Lion', 'Fox', 'Owl', 'Hawk', 'Shark', 'Panda'];
+    return `${adjectives[Math.floor(Math.random() * adjectives.length)]}${nouns[Math.floor(Math.random() * nouns.length)]}`;
+  };
+
   // Multiplayer state
   const [roomCode, setRoomCode] = useState('');
   const [inputRoomCode, setInputRoomCode] = useState('');
@@ -96,6 +107,14 @@ function PrisonersDilemmaGame() {
           setPlayerCount(data.playerCount);
           setScores(data.scores);
           setGameHistory(data.gameHistory || []);
+
+          // Update opponent name if we don't have it yet
+          if (!opponentName && data.players && data.players.length > 1) {
+            const opponent = data.players.find((p: { id: string; name: string }) => p.id !== playerId);
+            if (opponent) {
+              setOpponentName(opponent.name);
+            }
+          }
           
           if (data.gameState === 'finished') {
             setGameState('gameOver');
@@ -137,21 +156,26 @@ function PrisonersDilemmaGame() {
     }, 1000); // Poll every second
     
     return () => clearInterval(pollInterval);
-  }, [isMultiplayer, roomCode, playerId, gameState, currentRound, waitingForOpponent]);
+  }, [isMultiplayer, roomCode, playerId, gameState, currentRound, waitingForOpponent, opponentName, myChoice]);
   
-  // Create room
-  const handleCreateRoom = async () => {
-    try {
-      const response = await fetch('/api/game/create', { method: 'POST' });
-      const data = await response.json();
-      
-      if (data.roomCode) {
-        setRoomCode(data.roomCode);
-        await joinRoom(data.roomCode);
-      }
-    } catch {
-      setError('Failed to create room');
+  // Start game with names
+  const startGame = () => {
+    if (!playerName.trim()) {
+      setPlayerName(generateRandomName());
     }
+
+    if (isBotMode) {
+      setOpponentName(`${botType?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Bot`);
+      setGameState('choosing');
+      setCurrentRound(1);
+    } else {
+      setGameState('waiting');
+    }
+  };
+
+  // Create room
+  const handleCreateRoom = () => {
+    setGameState('nameInput');
   };
   
   // Join room
@@ -160,9 +184,13 @@ function PrisonersDilemmaGame() {
       const response = await fetch('/api/game/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomCode: code, playerId })
+        body: JSON.stringify({
+          roomCode: code,
+          playerId,
+          playerName: playerName || generateRandomName()
+        })
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setRoomCode(code);
@@ -170,7 +198,16 @@ function PrisonersDilemmaGame() {
         setPlayerCount(data.room.playerCount);
         setScores(data.room.scores);
         setCurrentRound(data.room.currentRound);
-        
+        setPlayerName(data.playerName);
+
+        // Set opponent name if available
+        if (data.room.players && data.room.players.length > 1) {
+          const opponent = data.room.players.find((p: { id: string; name: string }) => p.id !== playerId);
+          if (opponent) {
+            setOpponentName(opponent.name);
+          }
+        }
+
         if (data.room.gameState === 'playing') {
           setGameState('choosing');
         } else {
@@ -186,6 +223,33 @@ function PrisonersDilemmaGame() {
   };
   
   const handleJoinRoom = () => {
+    if (inputRoomCode.trim()) {
+      setGameState('nameInput');
+    }
+  };
+
+  // Actually create room after name input
+  const createRoomWithName = async () => {
+    try {
+      const response = await fetch('/api/game/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerName: playerName || generateRandomName() })
+      });
+      const data = await response.json();
+
+      if (data.roomCode) {
+        setRoomCode(data.roomCode);
+        setPlayerName(data.playerName);
+        await joinRoom(data.roomCode);
+      }
+    } catch {
+      setError('Failed to create room');
+    }
+  };
+
+  // Actually join room after name input
+  const joinRoomWithCode = () => {
     if (inputRoomCode.trim()) {
       joinRoom(inputRoomCode.trim());
     }
@@ -368,7 +432,60 @@ function PrisonersDilemmaGame() {
       </div>
     </div>
   );
-  
+
+  const NameInputScreen = () => (
+    <div className="text-center space-y-6">
+      <h1 className="text-4xl font-bold mb-4">Enter Your Name</h1>
+      <p className="text-gray-300 mb-8">Choose a temporary name for this game</p>
+
+      <div className="space-y-4">
+        <div className="flex gap-2 max-w-md mx-auto">
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="Enter your name"
+            className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white"
+            maxLength={20}
+            autoFocus
+          />
+          <button
+            onClick={() => setPlayerName(generateRandomName())}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+            title="Generate random name"
+          >
+            🎲
+          </button>
+        </div>
+
+        <div className="flex gap-4 justify-center">
+          {isMultiplayer && inputRoomCode.trim() ? (
+            <button
+              onClick={joinRoomWithCode}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Join Room
+            </button>
+          ) : (
+            <button
+              onClick={isBotMode ? startGame : createRoomWithName}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isBotMode ? 'Start Game' : 'Create Room'}
+            </button>
+          )}
+
+          <button
+            onClick={() => setGameState('menu')}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const WaitingScreen = () => (
     <div className="text-center space-y-6">
       <h2 className="text-3xl font-bold">Waiting for Opponent...</h2>
@@ -394,9 +511,9 @@ function PrisonersDilemmaGame() {
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">Round {currentRound} / {MAX_ROUNDS}</h2>
         <div className="text-lg">
-          <span className="text-blue-400">You: {scores.player1}</span>
-          <span className="mx-4">|</span>
-          <span className="text-red-400">{isBotMode ? 'Bot' : 'Opponent'}: {scores.player2}</span>
+          <span className="text-blue-400">{playerName}: {scores.player1}</span>
+          <span className="mx-4">vs</span>
+          <span className="text-red-400">{opponentName}: {scores.player2}</span>
         </div>
       </div>
       
@@ -460,9 +577,9 @@ function PrisonersDilemmaGame() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Round {lastRoundResult.round} Result</h2>
           <div className="text-lg">
-            <span className="text-blue-400">You: {scores.player1}</span>
-            <span className="mx-4">|</span>
-            <span className="text-red-400">{isBotMode ? 'Bot' : 'Opponent'}: {scores.player2}</span>
+            <span className="text-blue-400">{playerName}: {scores.player1}</span>
+            <span className="mx-4">vs</span>
+            <span className="text-red-400">{opponentName}: {scores.player2}</span>
           </div>
         </div>
         
@@ -523,9 +640,9 @@ function PrisonersDilemmaGame() {
         <div className="text-center">
           <h2 className="text-4xl font-bold mb-4">{winner}</h2>
           <div className="text-2xl mb-6">
-            <span className="text-blue-400">You: {scores.player1}</span>
-            <span className="mx-4">|</span>
-            <span className="text-red-400">{isBotMode ? 'Bot' : 'Opponent'}: {scores.player2}</span>
+            <span className="text-blue-400">{playerName}: {scores.player1}</span>
+            <span className="mx-4">vs</span>
+            <span className="text-red-400">{opponentName}: {scores.player2}</span>
           </div>
         </div>
         
@@ -570,6 +687,7 @@ function PrisonersDilemmaGame() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
         {gameState === 'menu' && <MenuScreen />}
+        {gameState === 'nameInput' && <NameInputScreen />}
         {gameState === 'waiting' && <WaitingScreen />}
         {gameState === 'choosing' && <ChoiceScreen />}
         {gameState === 'roundResult' && <RoundResultScreen />}

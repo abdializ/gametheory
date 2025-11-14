@@ -1,1 +1,1 @@
-{"/_app":"pages/_app.js","/_error":"pages/_error.js","/api/game/create":"pages/api/game/create.js","/api/game/choice":"pages/api/game/choice.js","/api/game/state":"pages/api/game/state.js","/api/game/join":"pages/api/game/join.js","/_document":"pages/_document.js","/404":"pages/404.html"}
+{"/_app":"pages/_app.js","/_error":"pages/_error.js","/api/game/choice":"pages/api/game/choice.js","/api/game/join":"pages/api/game/join.js","/api/game/create":"pages/api/game/create.js","/api/game/state":"pages/api/game/state.js","/_document":"pages/_document.js","/404":"pages/404.html"}

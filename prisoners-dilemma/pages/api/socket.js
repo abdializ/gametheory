@@ -1,5 +1,4 @@
 import { Server } from 'socket.io';
-const WebSocket = require('ws');
 
 // Maximum number of rounds in a game
 const MAX_ROUNDS = 15;

@@ -11,7 +11,7 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="text-center sm:text-left w-full">
-          <h1 className="text-4xl font-bold mb-4">Prisoner's Dilemma</h1>
+          <h1 className="text-4xl font-bold mb-4">Prisoner&apos;s Dilemma</h1>
           <p className="text-xl mb-6">Game Theory Simulation</p>
           
           <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-6 rounded-lg mb-8">
@@ -129,10 +129,10 @@ export default function Home() {
                 <h3 className="font-semibold mb-2">Play Over Local Network:</h3>
                 <ol className="list-decimal list-inside">
                   <li className="mb-1">On your PC, run: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">HOST=0.0.0.0 npm run dev</code></li>
-                  <li className="mb-1">Find your PC's IP address</li>
+                  <li className="mb-1">Find your PC&apos;s IP address</li>
                   <li className="mb-1">On your phone or other device, navigate to: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">http://&lt;YOUR-PC-IP&gt;:3000</code></li>
-                  <li className="mb-1">On the first device, click "Create New Room" and you'll receive a room code</li>
-                  <li className="mb-1">On the second device, click "Join Room" and enter the room code</li>
+                  <li className="mb-1">On the first device, click &quot;Create New Room&quot; and you&apos;ll receive a room code</li>
+                  <li className="mb-1">On the second device, click &quot;Join Room&quot; and enter the room code</li>
                   <li>Both devices must be on the same network for the connection to work properly</li>
                 </ol>
                 <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
@@ -151,9 +151,9 @@ export default function Home() {
         </div>
         
         <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-lg w-full">
-          <h2 className="text-xl font-bold mb-4 dark:text-white">About Prisoner's Dilemma</h2>
+          <h2 className="text-xl font-bold mb-4 dark:text-white">About Prisoner&apos;s Dilemma</h2>
           <p className="mb-4 dark:text-gray-300">
-            The Prisoner's Dilemma is a classic game theory scenario where two players must choose to either cooperate or defect:
+            The Prisoner&apos;s Dilemma is a classic game theory scenario where two players must choose to either cooperate or defect:
           </p>
           <ul className="list-disc list-inside mb-4 dark:text-gray-300">
             <li>If both cooperate, each gets 3 points</li>

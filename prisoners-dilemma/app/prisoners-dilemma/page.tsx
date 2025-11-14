@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { io, Socket } from "socket.io-client";
 import { SocketContext } from "../../pages/_app";
 
 // Maximum number of rounds in a game
@@ -137,12 +136,12 @@ const botStrategies = {
   'always-cooperate': {
     name: "Always Cooperate",
     description: "A nice bot that always cooperates",
-    getNextMove: (history: {p1: string, p2: string}[]) => "cooperate"
+    getNextMove: (_history: {p1: string, p2: string}[]) => "cooperate"
   },
   'always-defect': {
     name: "Always Defect",
     description: "A mean bot that always defects",
-    getNextMove: (history: {p1: string, p2: string}[]) => "defect"
+    getNextMove: (_history: {p1: string, p2: string}[]) => "defect"
   },
   'tit-for-tat': {
     name: "Tit-for-Tat",
@@ -155,7 +154,7 @@ const botStrategies = {
   'random': {
     name: "Random",
     description: "Makes random choices",
-    getNextMove: (history: {p1: string, p2: string}[]) => 
+    getNextMove: (_history: {p1: string, p2: string}[]) => 
       Math.random() > 0.5 ? "cooperate" : "defect"
   },
   'grudger': {
@@ -218,8 +217,6 @@ const GameOverScreen = ({
   scores, 
   onPlayAgain,
   tieRoundCount,
-  isBotGame,
-  botStrategy,
   playerId,
   gameHistory
 }: { 
@@ -360,7 +357,7 @@ const GameOverScreen = ({
               {winner === "You" ? "You win!" : "They win!"}
             </p>
           ) : (
-            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">It's a tie!</p>
+            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">It&apos;s a tie!</p>
           )}
         </div>
       </div>
@@ -442,7 +439,7 @@ const WaitingForPlayers = ({ playerCount, yourPlayerId, waitingQueueLength, room
         {!yourPlayerId && (
           <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded mt-3">
             <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              You're in the waiting queue. When a player slot opens, you'll be assigned automatically.
+              You&apos;re in the waiting queue. When a player slot opens, you&apos;ll be assigned automatically.
             </p>
           </div>
         )}
@@ -455,7 +452,7 @@ const WaitingForPlayers = ({ playerCount, yourPlayerId, waitingQueueLength, room
             <div className="font-mono bg-white dark:bg-gray-900 p-2 rounded border dark:border-gray-700 mb-2">
               {roomCode}
             </div>
-            <p className="text-xs">Share this code with them and have them "Join Room" using this code</p>
+            <p className="text-xs">Share this code with them and have them &quot;Join Room&quot; using this code</p>
           </div>
         </div>
       )}
@@ -713,13 +710,13 @@ export default function PrisonersDilemmaGame() {
   const [inputRoomCode, setInputRoomCode] = useState('');
   const [roomError, setRoomError] = useState<string | null>(null);
   const [roomJoined, setRoomJoined] = useState(false);
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
-  const [isJoiningRoom, setIsJoiningRoom] = useState(false);
+  const [, setIsCreatingRoom] = useState(false);
+  const [, setIsJoiningRoom] = useState(false);
   
   // State for connection
   const [connected, setConnected] = useState(false);
   const [playerCount, setPlayerCount] = useState(0);
-  const [waitingQueueLength, setWaitingQueueLength] = useState(0);
+  const [waitingQueueLength] = useState(0);
   const [gameReady, setGameReady] = useState(false);
   const [playerId, setPlayerId] = useState<number | null>(null);
   
@@ -737,8 +734,8 @@ export default function PrisonersDilemmaGame() {
   const [error, setError] = useState<string | null>(null);
   
   // Connection states
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setHasError] = useState(false);
+  const [, setErrorMessage] = useState("");
   
   // Generate a random room code
   const generateRoomCode = () => {
@@ -1140,10 +1137,10 @@ export default function PrisonersDilemmaGame() {
     console.log('Game reset, history cleared');
   }, [socket, isBotMode]);
 
-  // Determine current game state for UI rendering
-  const isPlayersTurn = !isGameOver && !isAnimating && 
-    ((playerId === 1 && player1Choice === null) || (playerId === 2 && player2Choice === null) || 
-     (isBotMode && player1Choice === null));
+  // Determine current game state for UI rendering (kept for potential future use)
+  // const isPlayersTurn = !isGameOver && !isAnimating && 
+  //   ((playerId === 1 && player1Choice === null) || (playerId === 2 && player2Choice === null) || 
+  //    (isBotMode && player1Choice === null));
   
   // Check if both players are present (always true in bot mode)
   const areBothPlayersConnected = isBotMode || playerCount >= 2 || gameReady;
@@ -1152,7 +1149,7 @@ export default function PrisonersDilemmaGame() {
   if (!isConnected && !isBotMode) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 dark:bg-gray-900 dark:text-white text-center">
-        <h1 className="text-3xl font-bold mb-6">Prisoner's Dilemma</h1>
+        <h1 className="text-3xl font-bold mb-6">Prisoner&apos;s Dilemma</h1>
         <p className="mb-4">Initializing connection… please wait</p>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
       </div>
@@ -1162,7 +1159,7 @@ export default function PrisonersDilemmaGame() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 dark:bg-gray-900 dark:text-white">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Prisoner's Dilemma</h1>
+        <h1 className="text-3xl font-bold">Prisoner&apos;s Dilemma</h1>
         <Link 
           href="/" 
           className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -1227,7 +1224,7 @@ export default function PrisonersDilemmaGame() {
           <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
             <li><span className="font-mono text-xs bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded">[BONUS]</span> <strong>Cooperation Streak:</strong> Earn +1 bonus point for every 2 consecutive mutual cooperations</li>
             <li><span className="font-mono text-xs bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">[FORGIVENESS]</span> <strong>Forgiveness Bonus:</strong> Get +2 points when you switch from defecting to cooperating</li>
-            <li><span className="font-mono text-xs bg-yellow-100 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded">[WARNING]</span> <strong>Reputation Penalty:</strong> Excessive defection (>60%) reduces your defection rewards</li>
+            <li><span className="font-mono text-xs bg-yellow-100 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded">[WARNING]</span> <strong>Reputation Penalty:</strong> Excessive defection (&gt;60%) reduces your defection rewards</li>
             <li><span className="font-mono text-xs bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">[PENALTY]</span> <strong>Mutual Defection Penalty:</strong> After 3+ mutual defections, both players get 0 points</li>
           </ul>
         </div>

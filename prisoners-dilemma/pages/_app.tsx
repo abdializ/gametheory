@@ -1,6 +1,6 @@
 import { AppProps } from 'next/app';
 import { io, Socket } from 'socket.io-client';
-import { createContext, useEffect, useState } from 'react';
+import { createContext } from 'react';
 import '../app/globals.css';
 
 // Initialize socket with proper configuration
